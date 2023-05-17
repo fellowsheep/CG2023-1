@@ -29,6 +29,8 @@ using namespace std;
 
 #include "Shader.h"
 
+#include "Mesh.h"
+
 struct Vertex
 {
 	glm::vec3 position;
@@ -45,7 +47,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 
 // Protótipos das funções
 int setupGeometry();
-int loadSimpleOBJ(string filepath, int &nVerts);
+int loadSimpleOBJ(string filepath, int &nVerts, glm::vec3 color = glm::vec3(1.0,0.0,1.0));
 
 // Dimensões da janela (pode ser alterado em tempo de execução)
 const GLuint WIDTH = 1000, HEIGHT = 1000;
@@ -60,11 +62,6 @@ bool firstMouse = true;
 float lastX, lastY;
 float sensitivity = 0.05;
 float pitch = 0.0, yaw = -90.0;
-
-vector <Vertex> vertices;
-vector <GLuint> indices;
-vector <glm::vec2> texCoords;
-vector <glm::vec3> normals;
 
 // Função MAIN
 int main()
@@ -124,36 +121,32 @@ int main()
 	//GLuint shader.ID = setupShader();
 	Shader shader("Phong.vs","Phong.fs");
 
-	// Gerando um buffer simples, com a geometria de um triângulo
-	GLuint VAO = setupGeometry();
-
-
 	glUseProgram(shader.ID);
-
-	// Matriz de model -- transformações no objeto
-	glm::mat4 model = glm::mat4(1); //matriz identidade;
-	GLint modelLoc = glGetUniformLocation(shader.ID, "model");
-	model = glm::rotate(model, /*(GLfloat)glfwGetTime()*/glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-	glUniformMatrix4fv(modelLoc, 1, FALSE, glm::value_ptr(model));
 
 	//Matriz de view -- posição e orientação da câmera
 	glm::mat4 view = glm::lookAt(glm::vec3(0.0, 0.0, 3.0), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
-	GLint viewLoc = glGetUniformLocation(shader.ID, "view");
-	glUniformMatrix4fv(viewLoc, 1, FALSE, glm::value_ptr(view));
+	shader.setMat4("view",value_ptr(view));
 
 	//Matriz de projeção perspectiva - definindo o volume de visualização (frustum)
 	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
-	GLint projLoc = glGetUniformLocation(shader.ID, "projection");
-	glUniformMatrix4fv(projLoc, 1, FALSE, glm::value_ptr(projection));
+	shader.setMat4("projection", glm::value_ptr(projection));
 
 	glEnable(GL_DEPTH_TEST);
 
 	int nVerts;
-	//GLuint VAO2 = loadSimpleOBJ("../suzanne.obj",nVerts);
-	//GLuint VAO2 = loadSimpleOBJ("../cubo.obj", nVerts);
-	//GLuint VAO2 = loadSimpleOBJ("../../3D_models/Classic-NoTexture/bunny.obj", nVerts);
+	GLuint VAO = loadSimpleOBJ("../../3D_models/Suzanne/suzanneTriLowPoly.obj", nVerts, glm::vec3(0.0,1.0,1.0));
 	GLuint VAO2 = loadSimpleOBJ("../../3D_models/Suzanne/suzanneTriLowPoly.obj", nVerts);
-	// VAO2 = loadSimpleOBJ("../../3D_models/Pokemon/Pikachu.obj", nVerts);
+	//GLuint VAO3 = loadSimpleOBJ("../../3D_models/Suzanne/suzanneTriLowPoly.obj", nVerts, glm::vec3(1.0, 1.0, 0.0));
+
+	Mesh suzanne1, suzanne2, suzanne3;
+	suzanne1.initialize(VAO, nVerts, &shader,glm::vec3(-2.75,0.0,0.0));
+	suzanne2.initialize(VAO2, nVerts, &shader);
+	//suzanne3.initialize(VAO3, nVerts, &shader,glm::vec3(2.75, 0.0, 0.0));
+
+	Mesh pikachu;
+	GLuint VAO3 = loadSimpleOBJ("../../3D_models/Pokemon/Pikachu.obj", nVerts, glm::vec3(1.0, 1.0, 0.0));
+	pikachu.initialize(VAO3, nVerts, &shader, glm::vec3(2.0, -1.0, 0.0), glm::vec3(0.5, 0.5, 0.5));
+
 
 	//Definindo as propriedades do material da superficie
 	shader.setFloat("ka", 0.4);
@@ -179,48 +172,24 @@ int main()
 		glLineWidth(10);
 		glPointSize(20);
 
-		float angle = (GLfloat)glfwGetTime();
-
-		model = glm::mat4(1); 
-
-		// model = glm::translate(model, glm::vec3(0.0, 0.0, cos(angle)*10.0));
-
-
-		if (rotateX)
-		{
-			model = glm::rotate(model, angle, glm::vec3(1.0f, 0.0f, 0.0f));
-			
-		}
-		else if (rotateY)
-		{
-			model = glm::rotate(model, angle, glm::vec3(0.0f, 1.0f, 0.0f));
-
-		}
-		else if (rotateZ)
-		{
-			model = glm::rotate(model, angle, glm::vec3(0.0f, 0.0f, 1.0f));
-
-		}
-
-		glUniformMatrix4fv(modelLoc, 1, FALSE, glm::value_ptr(model));
-		
 		//Atualizando a posição e orientação da câmera
 		glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-		glUniformMatrix4fv(viewLoc, 1, FALSE, glm::value_ptr(view));
+		shader.setMat4("view", glm::value_ptr(view));
 		
+		//Atualizando o shader com a posição da câmera
 		shader.setVec3("cameraPos", cameraPos.x, cameraPos.y, cameraPos.z);
 
 		// Chamada de desenho - drawcall
-		// Poligono Preenchido - GL_TRIANGLES
-		
-		glBindVertexArray(VAO2);
-		glDrawArrays(GL_TRIANGLES, 0, nVerts);
+		suzanne1.update();
+		suzanne1.draw();
 
-		// Chamada de desenho - drawcall
-		// CONTORNO - GL_LINE_LOOP
-		
-		//glDrawArrays(GL_POINTS, 0, nVerts);
-		//glBindVertexArray(0);
+		suzanne2.update();
+		suzanne2.draw();
+
+		//suzanne3.update();
+		//suzanne3.draw();
+		pikachu.update();
+		pikachu.draw();
 
 		// Troca os buffers da tela
 		glfwSwapBuffers(window);
@@ -413,9 +382,14 @@ int setupGeometry()
 	return VAO;
 }
 
-int loadSimpleOBJ(string filepath, int &nVerts)
+int loadSimpleOBJ(string filepath, int &nVerts, glm::vec3 color)
 {
+	vector <Vertex> vertices;
+	vector <GLuint> indices;
+	vector <glm::vec2> texCoords;
+	vector <glm::vec3> normals;
 	vector <GLfloat> vbuffer;
+
 	ifstream inputFile;
 	inputFile.open(filepath.c_str());
 	if (inputFile.is_open())
@@ -441,7 +415,7 @@ int loadSimpleOBJ(string filepath, int &nVerts)
 				Vertex v;
 
 				ssline >> v.position.x >> v.position.y >> v.position.z;
-				v.color.r = 1.0;  v.color.g = 0.0;  v.color.b = 1.0;
+				v.color.r = color.r;  v.color.g = color.g;  v.color.b = color.b;
 				
 				vertices.push_back(v);
 			}
