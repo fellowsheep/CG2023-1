@@ -68,7 +68,7 @@ void Object::loadObj(string filePath)
 				
 			}
 
-			if (word == "v")
+			if (word == "v" || inputFile.eof())
 			{
 				
 				if (initializeGroup)
@@ -86,10 +86,10 @@ void Object::loadObj(string filePath)
 						m.initialize(VAO, nVertices, shader, texID);
 						grupos.push_back(m);
 
-						vertices.clear();
-						colors.clear();
-						normals.clear();
-						texCoord.clear();
+						//vertices.clear();
+						//colors.clear();
+						//normals.clear();
+						//texCoord.clear();
 						vertbuffer.clear();
 					}
 
