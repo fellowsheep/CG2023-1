@@ -31,7 +31,7 @@ using namespace std;
 
 #include "Shader.h"
 
-#include "Mesh.h"
+#include "Object.h"
 
 struct Vertex
 {
@@ -137,14 +137,9 @@ int main()
 
 	glEnable(GL_DEPTH_TEST);
 
-	int nVerts;
-	GLuint VAO = loadSimpleOBJ("../../3D_models/Suzanne/CuboTextured.obj", nVerts, glm::vec3(0.0,1.0,1.0));
-	
-	GLuint texID = generateTexture("../../3D_models/Suzanne/Cube.png");
+	Object obj;
+	obj.initialize("../../3D_models/Pokemon/Pikachu.obj", &shader);
 
-	Mesh mesh;
-	mesh.initialize(VAO, nVerts, &shader,texID,glm::vec3(0.0,0.0,0.0));
-	
 
 	//Definindo as propriedades do material da superficie
 	shader.setFloat("ka", 0.4);
@@ -183,14 +178,13 @@ int main()
 		shader.setVec3("cameraPos", cameraPos.x, cameraPos.y, cameraPos.z);
 
 		// Chamada de desenho - drawcall
-		mesh.update();
-		mesh.draw();
+		obj.update();
+		obj.draw();
 
 		// Troca os buffers da tela
 		glfwSwapBuffers(window);
 	}
-	// Pede pra OpenGL desalocar os buffers
-	glDeleteVertexArrays(1, &VAO);
+	
 	// Finaliza a execução da GLFW, limpando os recursos alocados por ela
 	glfwTerminate();
 	return 0;
