@@ -56,7 +56,7 @@ void Object::loadObj(string filePath)
 		char line[100];
 		string sline;
 
-		bool inicioGrupo = false;
+		bool inicioGrupo = true;
 
 		while (!inputFile.eof())
 		{
@@ -73,20 +73,22 @@ void Object::loadObj(string filePath)
 			{
 				if (inicioGrupo || inputFile.eof())
 				{
-					inicioGrupo = false;
+					if (vbuffer.size())
+					{
+						inicioGrupo = false;
 
-					Mesh grupo;
-					GLuint texID = loadTexture(texNomes[i]);
-					i++;
-					int nVerts;
-					GLuint VAO = generateVAO(vbuffer,nVerts);
-					grupo.initialize(VAO, nVerts, shader, texID);
+						Mesh grupo;
+						GLuint texID = loadTexture(texNomes[i]);
+						i++;
+						int nVerts;
+						GLuint VAO = generateVAO(vbuffer, nVerts);
+						grupo.initialize(VAO, nVerts, shader, texID);
 
-					grupos.push_back(grupo);
+						grupos.push_back(grupo);
 
-					//Limpar o array auxiliar do buffer de geometria
-					vbuffer.clear();
-
+						//Limpar o array auxiliar do buffer de geometria
+						vbuffer.clear();
+					}
 				}
 
 				glm::vec3 v;				
@@ -111,7 +113,7 @@ void Object::loadObj(string filePath)
 				normals.push_back(vn);
 			}
 
-			if (word == "usemtl")
+			if (word == "g")
 			{
 				inicioGrupo = true;
 			}
