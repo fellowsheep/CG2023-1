@@ -69,9 +69,9 @@ void Object::loadObj(string filePath)
 			ssline >> word;
 
 			//cout << word << " ";
-			if (word == "v")
+			if (word == "v" || inputFile.eof())
 			{
-				if (inicioGrupo || inputFile.eof())
+				if (inicioGrupo)
 				{
 					if (vbuffer.size())
 					{
