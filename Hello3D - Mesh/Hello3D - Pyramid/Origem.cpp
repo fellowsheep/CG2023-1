@@ -83,7 +83,7 @@ int main()
 //#endif
 
 	// Criação da janela GLFW
-	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Ola Triangulo!", nullptr, nullptr);
+	GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Ola 3D!", nullptr, nullptr);
 	glfwMakeContextCurrent(window);
 
 	// Fazendo o registro da função de callback para a janela GLFW
@@ -122,7 +122,7 @@ int main()
 	//GLuint VAO = loadSimpleObj("../../3D_Models/Classic-NoTexture/bunny.obj", nVertices);
 	//GLuint VAO = loadSimpleObj("../../3D_Models/Cube/cube.obj", nVertices);
 	//GLuint VAO = loadSimpleObj("../../3D_Models/Pokemon/Pikachu.obj", nVertices);
-	GLuint VAO = loadSimpleObj("../../3D_Models/Suzanne/SuzanneTri.obj", nVertices);
+	GLuint VAO = loadSimpleObj("../../3D_Models/Suzanne/SuzanneTriLowpoly.obj", nVertices);
 
 	glUseProgram(shader.ID);
 
@@ -143,7 +143,10 @@ int main()
 	glUniformMatrix4fv(projLoc, 1, FALSE, glm::value_ptr(projection));
 
 	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
 
+
+	shader.setBool("isContour", false);
 
 	// Loop da aplicação - "game loop"
 	while (!glfwWindowShouldClose(window))
@@ -155,7 +158,7 @@ int main()
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f); //cor de fundo
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glLineWidth(10);
+		glLineWidth(3);
 		glPointSize(20);
 
 		float angle = (GLfloat)glfwGetTime();
@@ -191,13 +194,24 @@ int main()
 		// Poligono Preenchido - GL_TRIANGLES
 		
 		glBindVertexArray(VAO);
+
+		shader.setBool("isContour", false);
 		glDrawArrays(GL_TRIANGLES, 0, nVertices);
 
+		model = glm::scale(model, glm::vec3(1.001,1.001,1.001));
+		glUniformMatrix4fv(modelLoc, 1, FALSE, glm::value_ptr(model));
+		shader.setBool("isContour", true);
+		for (int i = 0; i < nVertices-3; i+=3)
+		{
+			glDrawArrays(GL_LINE_LOOP, i, 3);		
+		}
+		
+		glBindVertexArray(0);
 		// Chamada de desenho - drawcall
 		// CONTORNO - GL_LINE_LOOP
 		
 		//glDrawArrays(GL_POINTS, 0, nVertices);
-		//glBindVertexArray(0);
+		//
 
 		// Troca os buffers da tela
 		glfwSwapBuffers(window);
