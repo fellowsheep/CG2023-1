@@ -170,6 +170,27 @@ int main()
 		glLineWidth(10);
 		glPointSize(20);
 
+
+		float angle = (GLfloat)glfwGetTime();
+
+		glm::mat4 model = glm::mat4(1);
+
+		if (rotateX)
+		{
+			model = glm::rotate(model, angle, glm::vec3(1.0f, 0.0f, 0.0f));
+
+		}
+		else if (rotateY)
+		{
+			model = glm::rotate(model, angle, glm::vec3(0.0f, 1.0f, 0.0f));
+
+		}
+		else if (rotateZ)
+		{
+			model = glm::rotate(model, angle, glm::vec3(0.0f, 0.0f, 1.0f));
+
+		}
+
 		//Atualizando a posição e orientação da câmera
 		glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 		shader.setMat4("view", glm::value_ptr(view));
@@ -179,6 +200,7 @@ int main()
 
 		// Chamada de desenho - drawcall
 		obj.update();
+		shader.setMat4("model", glm::value_ptr(model));
 		obj.draw();
 
 		// Troca os buffers da tela
