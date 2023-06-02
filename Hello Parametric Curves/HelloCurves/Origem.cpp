@@ -101,6 +101,7 @@ int main()
 
 
 	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_ALWAYS);
 
 	//Neste exemplo, a cor da curva é passada como uma variável uniform
 	shader.setVec4("finalColor", 0, 0, 0, 1);
@@ -118,12 +119,15 @@ int main()
 	Bezier bezier;
 	bezier.setControlPoints(controlPoints);
 	bezier.setShader(&shader);
-	bezier.generateCurve(5);
+	bezier.generateCurve(200);
 
 	CatmullRom catmull;
 	catmull.setControlPoints(controlPoints);
 	catmull.setShader(&shader);
-	catmull.generateCurve(5);
+	catmull.generateCurve(100);
+
+	int nbCurvePoints = bezier.getNbCurvePoints();
+	int i = 0;
 
 	// Loop da aplicação - "game loop"
 	while (!glfwWindowShouldClose(window))
@@ -144,19 +148,35 @@ int main()
 		glPointSize(20);
 
 		
-		glBindVertexArray(VAO);
+		//glBindVertexArray(VAO);
+
+		//shader.setVec4("finalColor", 0, 0, 0, 1);
+		// Chamada de desenho - drawcall
+		// CONTORNO e PONTOS - GL_LINE_LOOP e GL_POINTS
+		//glDrawArrays(GL_POINTS, 0, controlPoints.size());
+		//glDrawArrays(GL_LINE_STRIP, 0, controlPoints.size());
+
+		//glBindVertexArray(0);
+
+		//hermite.drawCurve(glm::vec4(1, 0, 0, 1));
+		bezier.drawCurve(glm::vec4(0, 1, 0, 1));
+		//catmull.drawCurve(glm::vec4(1, 0, 1, 1));
+
+		glm::vec3 pointOnCurve = bezier.getPointOnCurve(i);
+		vector <glm::vec3> aux;
+		aux.push_back(pointOnCurve);
+		GLuint VAOPoint = generateControlPointsBuffer(aux);
+
+		glBindVertexArray(VAOPoint);
 
 		shader.setVec4("finalColor", 0, 0, 0, 1);
 		// Chamada de desenho - drawcall
 		// CONTORNO e PONTOS - GL_LINE_LOOP e GL_POINTS
-		glDrawArrays(GL_POINTS, 0, controlPoints.size());
+		glDrawArrays(GL_POINTS, 0, aux.size());
 		//glDrawArrays(GL_LINE_STRIP, 0, controlPoints.size());
-
 		glBindVertexArray(0);
 
-		//hermite.drawCurve(glm::vec4(1, 0, 0, 1));
-		//bezier.drawCurve(glm::vec4(0, 1, 0, 1));
-		catmull.drawCurve(glm::vec4(1, 0, 1, 1));
+		i = (i + 1) % nbCurvePoints;
 
 		// Troca os buffers da tela
 		glfwSwapBuffers(window);

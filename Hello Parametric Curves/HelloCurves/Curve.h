@@ -20,10 +20,12 @@ public:
 	void setShader(Shader* shader);
 	void generateCurve(int pointsPerSegment);
 	void drawCurve(glm::vec4 color);
+	int getNbCurvePoints() { return curvePoints.size(); }
+	glm::vec3 getPointOnCurve(int i) { return curvePoints[i]; }
 protected:
 	vector <glm::vec3> controlPoints;
 	vector <glm::vec3> curvePoints;
-	glm::mat4 M; //Matriz de geometria
+	glm::mat4 M; //Matriz de base
 	GLuint VAO;
 	Shader* shader;
 };
