@@ -45,6 +45,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 // Protótipos das funções
 vector <glm::vec3> generateControlPointsSet(int nPoints);
 vector <glm::vec3> generateControlPointsSet();
+std::vector<glm::vec3> generateUnisinosPointsSet();
 GLuint generateControlPointsBuffer(vector <glm::vec3> controlPoints);
 
 // Dimensões da janela (pode ser alterado em tempo de execução)
@@ -116,15 +117,18 @@ int main()
 	hermite.setShader(&shader);
 	hermite.generateCurve(5);
 
-	Bezier bezier;
-	bezier.setControlPoints(controlPoints);
-	bezier.setShader(&shader);
-	bezier.generateCurve(200);
-
 	CatmullRom catmull;
 	catmull.setControlPoints(controlPoints);
 	catmull.setShader(&shader);
 	catmull.generateCurve(100);
+	
+	std::vector<glm::vec3> uniPoints = generateUnisinosPointsSet();
+	GLuint VAOUni = generateControlPointsBuffer(uniPoints);
+
+	Bezier bezier;
+	bezier.setControlPoints(uniPoints);
+	bezier.setShader(&shader);
+	bezier.generateCurve(10);
 
 	int nbCurvePoints = bezier.getNbCurvePoints();
 	int i = 0;
@@ -148,15 +152,10 @@ int main()
 		glPointSize(20);
 
 		
-		//glBindVertexArray(VAO);
-
-		//shader.setVec4("finalColor", 0, 0, 0, 1);
-		// Chamada de desenho - drawcall
-		// CONTORNO e PONTOS - GL_LINE_LOOP e GL_POINTS
-		//glDrawArrays(GL_POINTS, 0, controlPoints.size());
-		//glDrawArrays(GL_LINE_STRIP, 0, controlPoints.size());
-
-		//glBindVertexArray(0);
+		glBindVertexArray(VAOUni);
+		shader.setVec4("finalColor", 0, 0, 1, 1);
+		glDrawArrays(GL_LINE_STRIP, 0, uniPoints.size());
+		glBindVertexArray(0);
 
 		//hermite.drawCurve(glm::vec4(1, 0, 0, 1));
 		bezier.drawCurve(glm::vec4(0, 1, 0, 1));
@@ -269,5 +268,92 @@ GLuint generateControlPointsBuffer(vector <glm::vec3> controlPoints)
 	glBindVertexArray(0);
 
 	return VAO;
+}
+
+std::vector<glm::vec3> generateUnisinosPointsSet()
+{
+	float vertices[] = {
+		-0.262530, 0.376992, 0.000000,
+-0.262530, 0.377406, 0.000000,
+-0.262530, 0.334639, 0.000000,
+-0.262530, 0.223162, 0.000000,
+-0.262530, 0.091495, 0.000000,
+-0.262371, -0.006710, 0.000000,
+-0.261258, -0.071544, -0.000000,
+-0.258238, -0.115777, -0.000000,
+-0.252355, -0.149133, -0.000000,
+-0.242529, -0.179247, -0.000000,
+-0.227170, -0.208406, -0.000000,
+-0.205134, -0.237216, -0.000000,
+-0.177564, -0.264881, -0.000000,
+-0.146433, -0.289891, -0.000000,
+-0.114730, -0.309272, -0.000000,
+-0.084934, -0.320990, -0.000000,
+-0.056475, -0.328224, -0.000000,
+-0.028237, -0.334170, -0.000000,
+0.000000, -0.336873, -0.000000,
+0.028237, -0.334170, -0.000000,
+0.056475, -0.328224, -0.000000,
+0.084934, -0.320990, -0.000000,
+0.114730, -0.309272, -0.000000,
+0.146433, -0.289891, -0.000000,
+0.177564, -0.264881, -0.000000,
+0.205134, -0.237216, -0.000000,
+0.227170, -0.208406, -0.000000,
+0.242529, -0.179247, -0.000000,
+0.252355, -0.149133, -0.000000,
+0.258238, -0.115777, -0.000000,
+0.261258, -0.071544, -0.000000,
+0.262371, -0.009704, 0.000000,
+0.262530, 0.067542, 0.000000,
+0.262769, 0.153238, 0.000000,
+0.264438, 0.230348, 0.000000,
+0.268678, 0.284286, 0.000000,
+0.275462, 0.320338, 0.000000,
+0.284631, 0.347804, 0.000000,
+0.296661, 0.372170, 0.000000,
+0.311832, 0.396628, 0.000000,
+0.328990, 0.419020, 0.000000,
+0.347274, 0.436734, 0.000000,
+0.368420, 0.450713, 0.000000,
+0.393395, 0.462743, 0.000000,
+0.417496, 0.474456, 0.000000,
+0.436138, 0.487056, 0.000000,
+0.450885, 0.500213, 0.000000,
+0.464572, 0.513277, 0.000000,
+0.478974, 0.525864, 0.000000,
+0.494860, 0.538133, 0.000000,
+0.510031, 0.552151, 0.000000,
+0.522127, 0.570143, 0.000000,
+0.531124, 0.593065, 0.000000,
+0.537629, 0.620809, 0.000000,
+0.542465, 0.650303, 0.000000,
+0.546798, 0.678259, 0.000000,
+0.552959, 0.703513, 0.000000,
+0.563121, 0.725745, 0.000000,
+0.577656, 0.745911, 0.000000,
+0.596563, 0.764858, 0.000000,
+0.620160, 0.781738, 0.000000,
+0.648302, 0.795385, 0.000000,
+0.678670, 0.805057, 0.000000,
+0.710336, 0.810741, 0.000000,
+0.750111, 0.814914, 0.000000,
+0.802994, 0.819945, 0.000000,
+0.860771, 0.825435, 0.000000,
+	};
+
+	vector <glm::vec3> uniPoints;
+
+	for (int i = 0; i < 67*3; i+=3)
+	{
+		glm::vec3 point;
+		point.x = vertices[i];
+		point.y = vertices[i + 1];
+		point.z = 0.0;
+
+		uniPoints.push_back(point);
+	}
+
+	return uniPoints;
 }
 
