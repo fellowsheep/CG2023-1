@@ -116,22 +116,22 @@ int main()
 	// Compilando e buildando o programa de shader
 	Shader shader("Hello3D.vs", "Hello3D.fs");
 
-	//GLuint texID = generateTexture("../../3D_models/Suzanne/example.bmp");
+	GLuint texID = generateTexture("../../3D_models/Suzanne/Cube.png");
 
 
 	// Gerando um buffer simples, com a geometria de um triângulo
-	//int nVertices;
+	int nVertices;
 	//GLuint VAO = loadSimpleObj("../../3D_Models/Classic/bunny.obj", nVertices);
 	//GLuint VAO = loadSimpleObj("../../3D_Models/Cube/cube.obj", nVertices);
 	//GLuint VAO = loadSimpleObj("../../3D_Models/Pokemon/Pikachu.obj", nVertices);
-	//GLuint VAO = loadSimpleObj("../../3D_Models/Suzanne/bola.obj", nVertices);
+	GLuint VAO = loadSimpleObj("../../3D_Models/Suzanne/suzanneTriLowPoly.obj", nVertices);
 	
 	glUseProgram(shader.ID);
 
 	glm::mat4 model = glm::mat4(1); //matriz identidade;
 	GLint modelLoc = glGetUniformLocation(shader.ID, "model");
 	//
-	model = glm::rotate(model, /*(GLfloat)glfwGetTime()*/glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	model = glm::rotate(model, (GLfloat)glfwGetTime(), glm::vec3(1.0f, 0.0f, 0.0f));
 	glUniformMatrix4fv(modelLoc, 1, FALSE, glm::value_ptr(model));
 
 	//Definindo a matriz de view (posição e orientação da câmera)
@@ -156,8 +156,8 @@ int main()
 
 	//Mesh mesh;
 	//mesh.initialize(VAO, nVertices, &shader, texID, glm::vec3(0.0, 0.0, 0.0));
-	Object obj;
-	obj.initialize("../../3D_models/Pokemon/Pikachu.obj", &shader);
+	//Object obj;
+	//obj.initialize("../../3D_models/Pokemon/Pikachu.obj", &shader);
 
 	glActiveTexture(GL_TEXTURE0);
 	glUniform1i(glGetUniformLocation(shader.ID, "colorBuffer"), 0);
@@ -185,11 +185,22 @@ int main()
 		//Enviando a posição da camera para o shader
 		shader.setVec3("cameraPos", cameraPos.x, cameraPos.y, cameraPos.z);
 
+		glm::mat4 model = glm::mat4(1); //matriz identidade;
+		GLint modelLoc = glGetUniformLocation(shader.ID, "model");
+		//
+		model = glm::rotate(model, (GLfloat)glfwGetTime(), glm::vec3(1.0f, 0.0f, 0.0f));
+		glUniformMatrix4fv(modelLoc, 1, FALSE, glm::value_ptr(model));
+
+
 		// Chamada de desenho - drawcall
 		//mesh.update();
 		//mesh.draw();
-		obj.update();
-		obj.draw();
+		//obj.update();
+		//obj.draw();
+		glBindTexture(GL_TEXTURE_2D, texID);
+		glBindVertexArray(VAO);
+		glDrawArrays(GL_TRIANGLES, 0, nVertices);
+		glBindVertexArray(0);
 		
 
 		// Troca os buffers da tela

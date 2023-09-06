@@ -31,11 +31,13 @@ void Object::draw()
 void Object::loadObj(string filePath)
 {
 	//"Gambiarra provisõria"
-	string texNomes[] = {"../../3D_models/Pokemon/textures/PikachuMouthDh.png",
+	string texNomes[] = { "../../3D_models/Suzanne/Cube.png"};
+	
+	/*{"../../3D_models/Pokemon/textures/PikachuMouthDh.png",
                          "../../3D_models/Pokemon/textures/PikachuDh.png",
 						 "../../3D_models/Pokemon/textures/PikachuHohoDh.png",
 						 "../../3D_models/Pokemon/textures/PikachuEyeDh.png",
-						 "../../3D_models/Pokemon/textures/PikachuDh.png" };
+						 "../../3D_models/Pokemon/textures/PikachuDh.png" };*/
 	int i = 0;
 
 	glm::vec3 color;

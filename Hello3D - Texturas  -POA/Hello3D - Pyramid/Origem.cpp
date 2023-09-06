@@ -67,6 +67,9 @@ float lastX, lastY;
 float sensitivity = 0.05;
 float pitch = 0.0, yaw = -90.0;
 
+vector <Object> objects;
+int iSelecionado = 0;
+
 // Função MAIN
 int main()
 {
@@ -114,15 +117,13 @@ int main()
 	const GLubyte* version = glGetString(GL_VERSION); /* version as a string */
 	cout << "Renderer: " << renderer << endl;
 	cout << "OpenGL version supported " << version << endl;
-
+	
 	// Definindo as dimensões da viewport com as mesmas dimensões da janela da aplicação
 	int width, height;
 	glfwGetFramebufferSize(window, &width, &height);
 	glViewport(0, 0, width, height);
 
-
 	// Compilando e buildando o programa de shader
-	//GLuint shader.ID = setupShader();
 	Shader shader("Phong.vs","Phong.fs");
 
 	glUseProgram(shader.ID);
@@ -137,8 +138,11 @@ int main()
 
 	glEnable(GL_DEPTH_TEST);
 
-	Object obj;
-	obj.initialize("../../3D_models/Pokemon/Pikachu.obj", &shader);
+	//Object obj;
+	//obj.initialize("../../3D_models/Cube/Cube.obj", &shader);
+	GLuint texID = generateTexture("../../3D_models/Novos/TexturasOffice.png");
+	int nVerts;
+	GLuint VAO = loadSimpleOBJ("../../3D_models/Novos/desk.obj",nVerts);
 
 
 	//Definindo as propriedades do material da superficie
@@ -199,9 +203,15 @@ int main()
 		shader.setVec3("cameraPos", cameraPos.x, cameraPos.y, cameraPos.z);
 
 		// Chamada de desenho - drawcall
-		obj.update();
+		//obj.update();
 		shader.setMat4("model", glm::value_ptr(model));
-		obj.draw();
+		//obj.draw();
+
+		glBindTexture(GL_TEXTURE_2D, texID);
+		glBindVertexArray(VAO);
+		glDrawArrays(GL_TRIANGLES, 0, nVerts);
+		glBindVertexArray(0);
+
 
 		// Troca os buffers da tela
 		glfwSwapBuffers(window);
@@ -395,11 +405,12 @@ int setupGeometry()
 
 int loadSimpleOBJ(string filepath, int &nVerts, glm::vec3 color)
 {
-	vector <Vertex> vertices;
+	vector <glm::vec3> vertices;
 	vector <GLuint> indices;
 	vector <glm::vec2> texCoords;
 	vector <glm::vec3> normals;
 	vector <GLfloat> vbuffer;
+
 
 	ifstream inputFile;
 	inputFile.open(filepath.c_str());
@@ -423,10 +434,10 @@ int loadSimpleOBJ(string filepath, int &nVerts, glm::vec3 color)
 			//cout << word << " ";
 			if (word == "v")
 			{
-				Vertex v;
+				glm::vec3 v;
 
-				ssline >> v.position.x >> v.position.y >> v.position.z;
-				v.color.r = color.r;  v.color.g = color.g;  v.color.b = color.b;
+				ssline >> v.x >> v.y >> v.z;
+				
 				
 				vertices.push_back(v);
 			}
@@ -460,12 +471,12 @@ int loadSimpleOBJ(string filepath, int &nVerts, glm::vec3 color)
 					int index = atoi(token.c_str()) - 1;
 					indices.push_back(index);
 					
-					vbuffer.push_back(vertices[index].position.x);
-					vbuffer.push_back(vertices[index].position.y);
-					vbuffer.push_back(vertices[index].position.z);
-					vbuffer.push_back(vertices[index].color.r);
-					vbuffer.push_back(vertices[index].color.g);
-					vbuffer.push_back(vertices[index].color.b);
+					vbuffer.push_back(vertices[index].x);
+					vbuffer.push_back(vertices[index].y);
+					vbuffer.push_back(vertices[index].z);
+					vbuffer.push_back(color.r);
+					vbuffer.push_back(color.g);
+					vbuffer.push_back(color.b);
 				
 					//Recuperando os indices de vts
 					tokens[i] = tokens[i].substr(pos + 1);

@@ -42,8 +42,8 @@ void main()
     float spec = pow(max(dot(R,V),0.0),q);
     vec3 specular = spec * ks * lightColor;
     
-    vec4 texColor = texture(colorBuffer,texCoord);
+    vec4 texColor = vec4(finalColor,1); //texture(colorBuffer,texCoord);
     vec3 result = (ambient + diffuse) * vec3(texColor) + specular;
 
-    color = vec4(result, 1.0f);
+    color =  vec4(result, 1.0f);
 }
